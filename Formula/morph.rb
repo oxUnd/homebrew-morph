@@ -10,6 +10,8 @@ class Morph < Formula
   depends_on "md4c"
   depends_on "sqlite"
   depends_on "curl"
+  depends_on "libuv"
+  depends_on "morph-editor"
   depends_on "readline" => :recommended
 
   def install
