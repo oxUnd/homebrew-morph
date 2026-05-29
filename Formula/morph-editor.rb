@@ -11,6 +11,8 @@ class MorphEditor < Formula
   depends_on "libuv"
 
   def install
+    inreplace "CMakeLists.txt", "-Werror", ""
+
     system "cmake", "-S", ".", "-B", "build",
                     "-DBUILD_TESTS=OFF",
                     *std_cmake_args
