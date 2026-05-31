@@ -44,6 +44,6 @@ class Morph < Formula
   end
 
   test do
-    assert_match "morph", shell_output("#{bin}/morph -h", 1)
+    assert_match "morph", shell_output("#{bin}/morph -h")
   end
 end
