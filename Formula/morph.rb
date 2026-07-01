@@ -7,7 +7,10 @@ class Morph < Formula
   license "all-rights-reserved"
 
   depends_on "cmake" => :build
+  depends_on "pkg-config" => :build
   depends_on "curl"
+  depends_on "freetype"
+  depends_on "harfbuzz"
   depends_on "libuv"
   depends_on "md4c"
   depends_on "morph-editor"
@@ -15,11 +18,21 @@ class Morph < Formula
   depends_on "sqlite"
   depends_on "readline" => :recommended
 
+  resource "mathjax-c" do
+    url "https://github.com/oxUnd/mathjax-c/archive/c6b33a517a8a1b82f25801b2b60104602389161f.tar.gz"
+    sha256 "986881cea1bb72958d3fdd14f57a22a8f422c8ca1de84a2b5ced10cbc8ac1e3c"
+  end
+
   def install
+    resource("mathjax-c").stage buildpath/"vendor/mathjax-c"
+
     inreplace "CMakeLists.txt" do |s|
-      s.gsub! "include(FetchContent)", ""
-      s.gsub! %r{FetchContent_Declare\(\n\tmd4c\n\tURL      https://github\.com/mity/md4c/archive/refs/tags/release-0\.5\.3\.tar\.gz\n\)\nFetchContent_MakeAvailable\(md4c\)},
-              "find_package(md4c REQUIRED)"
+      md4c_fetchcontent = %r{
+        include\(FetchContent\)\n\n
+        if\(EXISTS\ "\$\{CMAKE_SOURCE_DIR\}/_deps/md4c-0\.5\.3\.tar\.gz"\).*?
+        FetchContent_MakeAvailable\(md4c\)
+      }mx
+      s.gsub! md4c_fetchcontent, "find_package(md4c REQUIRED)"
     end
 
     inreplace "src/render/CMakeLists.txt", "md4c", "md4c::md4c"
