@@ -1,17 +1,17 @@
 class Morph < Formula
   desc "Terminal-native multimodal AI agent written in pure C"
   homepage "https://github.com/oxUnd/morph"
-  url "https://github.com/oxUnd/morph/archive/1dcfaf2162f9adc17b9120b22949dfd51be94954.tar.gz"
-  version "0.3.4"
-  sha256 "9d94731e4068e1399d76d707cfe30f058ed215d591ea68f17b9a7bde21e4a605"
+  url "https://github.com/oxUnd/morph/archive/83c7887a9919e87cdbf7cb93b31c8803ed12624f.tar.gz"
+  version "0.3.6"
+  sha256 "5b0099d84cccc20da65f8a1cf43bb8f65cf5d33a1a08d7a8e717e5443f0b09bd"
   license "all-rights-reserved"
 
   depends_on "cmake" => :build
   depends_on "curl"
-  depends_on "mpv"
   depends_on "libuv"
   depends_on "md4c"
   depends_on "morph-editor"
+  depends_on "mpv"
   depends_on "sqlite"
   depends_on "readline" => :recommended
 
