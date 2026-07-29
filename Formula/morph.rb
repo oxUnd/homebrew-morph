@@ -1,63 +1,100 @@
 class Morph < Formula
   desc "Terminal-native multimodal AI agent written in pure C"
   homepage "https://github.com/oxUnd/morph"
-  url "https://github.com/oxUnd/morph/archive/83c7887a9919e87cdbf7cb93b31c8803ed12624f.tar.gz"
-  version "0.3.6"
-  sha256 "5b0099d84cccc20da65f8a1cf43bb8f65cf5d33a1a08d7a8e717e5443f0b09bd"
-  license "all-rights-reserved"
+  url "https://github.com/oxUnd/morph/archive/refs/tags/v0.3.7.tar.gz"
+  sha256 "48ef2b37fad737faa24f082460fad681fecea4ad0f99feb7ef0793515fea30c7"
+  license :cannot_represent
 
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
+  depends_on "cairo"
   depends_on "curl"
   depends_on "freetype"
   depends_on "harfbuzz"
   depends_on "libuv"
-  depends_on "md4c"
   depends_on "morph-editor"
   depends_on "mpv"
+  depends_on "pango"
   depends_on "sqlite"
+  depends_on "vips"
   depends_on "readline" => :recommended
 
   resource "mathjax-c" do
-    url "https://github.com/oxUnd/mathjax-c/archive/c6b33a517a8a1b82f25801b2b60104602389161f.tar.gz"
-    sha256 "986881cea1bb72958d3fdd14f57a22a8f422c8ca1de84a2b5ced10cbc8ac1e3c"
+    url "https://github.com/oxUnd/mathjax-c/archive/ea692adccc0eb56ac53261c5880d93094d22e43e.tar.gz"
+    sha256 "e838ebb0766a8544dce359842bc529723ed0a41fd10b9df40b916a11d8ab3f90"
+  end
+
+  resource "morph-markdown" do
+    url "https://github.com/oxUnd/morph-markdown/archive/1bc69570d777318a506fb7cc59ad54e10d7592bb.tar.gz"
+    sha256 "81e87e39537e0268e01486e96749e45ed69a24822639dd907df7c1dbf0c0532e"
+  end
+
+  resource "quickjs" do
+    url "https://bellard.org/quickjs/quickjs-2026-06-04.tar.xz"
+    sha256 "b376e839b322978313d929fd20663b11ba58b75df5a46c126dd19ea2fa70ad2a"
+  end
+
+  resource "wasm3" do
+    url "https://github.com/wasm3/wasm3/archive/refs/tags/v0.5.0.tar.gz"
+    sha256 "b778dd72ee2251f4fe9e2666ee3fe1c26f06f517c3ffce572416db067546536c"
+  end
+
+  resource "blake3" do
+    url "https://github.com/BLAKE3-team/BLAKE3/archive/refs/tags/1.8.5.tar.gz"
+    sha256 "220bd81286e2a0585beac66d41ac3f4c2c33ae8a4e339fc88cf22d5e00514fe9"
+  end
+
+  resource "tree-sitter" do
+    url "https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v0.25.10.tar.gz"
+    sha256 "ad5040537537012b16ef6e1210a572b927c7cdc2b99d1ee88d44a7dcdc3ff44c"
+  end
+
+  resource "tree-sitter-bash" do
+    url "https://github.com/tree-sitter/tree-sitter-bash/archive/refs/tags/v0.25.1.tar.gz"
+    sha256 "2e785a761225b6c433410ef9c7b63cfb0a4e83a35a19e0f2aec140b42c06b52d"
+  end
+
+  resource "cmark-gfm" do
+    url "https://github.com/github/cmark-gfm/archive/refs/tags/0.29.0.gfm.13.tar.gz"
+    sha256 "5abc61798ebd9de5660bc076443c07abad2b8d15dbc11094a3a79644b8ad243a"
   end
 
   def install
     resource("mathjax-c").stage buildpath/"vendor/mathjax-c"
+    resource("morph-markdown").stage buildpath/"fronts/morph-markdown"
 
-    inreplace "CMakeLists.txt" do |s|
-      md4c_fetchcontent = %r{
-        include\(FetchContent\)\n\n
-        if\(EXISTS\ "\$\{CMAKE_SOURCE_DIR\}/_deps/md4c-0\.5\.3\.tar\.gz"\).*?
-        FetchContent_MakeAvailable\(md4c\)
-      }mx
-      s.gsub! md4c_fetchcontent, "find_package(md4c REQUIRED)"
+    fetchcontent_dir = buildpath/"homebrew-fetchcontent"
+    %w[quickjs wasm3 blake3 tree-sitter tree-sitter-bash cmark-gfm].each do |name|
+      resource(name).stage fetchcontent_dir/name
     end
-
-    inreplace "src/render/CMakeLists.txt", "md4c", "md4c::md4c"
 
     system "cmake", "-S", ".", "-B", "build",
                     "-DBUILD_TESTS=OFF",
+                    "-DFETCHCONTENT_SOURCE_DIR_QUICKJS=#{fetchcontent_dir}/quickjs",
+                    "-DFETCHCONTENT_SOURCE_DIR_WASM3=#{fetchcontent_dir}/wasm3",
+                    "-DFETCHCONTENT_SOURCE_DIR_BLAKE3=#{fetchcontent_dir}/blake3",
+                    "-DFETCHCONTENT_SOURCE_DIR_TREE_SITTER=#{fetchcontent_dir}/tree-sitter",
+                    "-DFETCHCONTENT_SOURCE_DIR_TREE_SITTER_BASH=#{fetchcontent_dir}/tree-sitter-bash",
+                    "-DFETCHCONTENT_SOURCE_DIR_CMARK-GFM=#{fetchcontent_dir}/cmark-gfm",
                     *std_cmake_args
     system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
 
-    bin.install "build/morph"
+    pkgshare.install "config.toml.example"
+    rm etc/"morph/config.toml.example"
 
-    (etc/"morph").install "config.toml.example" => "config.toml.example"
-    (pkgshare/"tiktoken").install Dir["vendor/tiktoken/*.tiktoken"]
-  end
-
-  def post_install
-    tiktoken_dir = Pathname.new(Dir.home) / ".morph" / "tiktoken"
-    tiktoken_dir.mkpath
-    %w[cl100k_base.tiktoken o200k_base.tiktoken].each do |f|
-      src = pkgshare / "tiktoken" / f
-      cp src, tiktoken_dir / f if src.exist?
-    end
+    rm bin/"cmark-gfm"
+    rm_r include
+    rm_r lib
+    rm_r share/"man"
   end
 
   test do
-    assert_match "morph", shell_output("#{bin}/morph -h")
+    assert_match "0.3.7", shell_output("#{bin}/morph --version")
+    assert_path_exists bin/"morph-js-runner"
+    assert_path_exists pkgshare/"fonts/STIXTwoMath-Regular.ttf"
+    assert_path_exists pkgshare/"config.toml.example"
+    assert_path_exists pkgshare/"tiktoken/o200k_base.tiktoken"
+    assert_path_exists pkgshare/"skills/morph-usage/SKILL.md"
   end
 end
