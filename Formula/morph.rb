@@ -1,8 +1,8 @@
 class Morph < Formula
   desc "Terminal-native multimodal AI agent written in pure C"
   homepage "https://github.com/oxUnd/morph"
-  url "https://github.com/oxUnd/morph/archive/refs/tags/v0.3.8.tar.gz"
-  sha256 "6a0332c4d401e67897b61c0c1c134676a274649833b4814a2420262ea7576c29"
+  url "https://github.com/oxUnd/morph/archive/refs/tags/v0.3.9.tar.gz"
+  sha256 "3473d862a3d2a75d1de28370fe19c914fad59ee044fca621c0a37dc8bc7f82f4"
   license :cannot_represent
 
   depends_on "cmake" => :build
@@ -25,8 +25,8 @@ class Morph < Formula
   end
 
   resource "morph-markdown" do
-    url "https://github.com/oxUnd/morph-markdown/archive/1bc69570d777318a506fb7cc59ad54e10d7592bb.tar.gz"
-    sha256 "81e87e39537e0268e01486e96749e45ed69a24822639dd907df7c1dbf0c0532e"
+    url "https://github.com/oxUnd/morph-markdown/archive/509258e4b8c10624b39a58e5a91a40745f0ad524.tar.gz"
+    sha256 "e1be2ab10feb40053375d48949ee37a481605a882cd2ef5e30874763d9d4b135"
   end
 
   resource "quickjs" do
@@ -87,7 +87,7 @@ class Morph < Formula
   end
 
   test do
-    assert_match "0.3.8", shell_output("#{bin}/morph --version")
+    assert_match "0.3.9", shell_output("#{bin}/morph --version")
     assert_path_exists bin/"morph-js-runner"
     assert_path_exists pkgshare/"fonts/STIXTwoMath-Regular.ttf"
     assert_path_exists pkgshare/"tiktoken/o200k_base.tiktoken"
