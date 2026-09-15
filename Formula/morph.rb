@@ -1,8 +1,8 @@
 class Morph < Formula
   desc "Terminal-native multimodal AI agent written in pure C"
   homepage "https://github.com/oxUnd/morph"
-  url "https://github.com/oxUnd/morph/archive/refs/tags/v0.3.9.tar.gz"
-  sha256 "3473d862a3d2a75d1de28370fe19c914fad59ee044fca621c0a37dc8bc7f82f4"
+  url "https://github.com/oxUnd/morph/archive/refs/tags/v0.3.10.tar.gz"
+  sha256 "3311f727aeb53286bb348e36bd1c19534da375a062fd84412cd8ffb6bd564ae0"
   license :cannot_represent
 
   depends_on "cmake" => :build
@@ -87,7 +87,7 @@ class Morph < Formula
   end
 
   test do
-    assert_match "0.3.9", shell_output("#{bin}/morph --version")
+    assert_match "0.3.10", shell_output("#{bin}/morph --version")
     assert_path_exists bin/"morph-js-runner"
     assert_path_exists pkgshare/"fonts/STIXTwoMath-Regular.ttf"
     assert_path_exists pkgshare/"tiktoken/o200k_base.tiktoken"
