@@ -10,6 +10,8 @@ class Morph < Formula
   depends_on "cairo"
   depends_on "curl"
   depends_on "freetype"
+  depends_on "gettext"
+  depends_on "glib"
   depends_on "harfbuzz"
   depends_on "libuv"
   depends_on "morph-editor"
